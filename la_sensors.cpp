@@ -16,14 +16,14 @@
 
 /* Variables de medición formateadas para envío. */
 uint8_t nodeId = 1;
-int8_t innerLoraTemperature = 24;
-uint8_t innerLoraHumidity = 83;
-int8_t outerLoraTemperature = 27;
-uint8_t outerLoraHumidity = 85;
-uint8_t soilLoraMoisture = 82;
-uint16_t innerLoraCo2 = 420;
-float innerLoraCh4 = 2.3;
-int16_t innerLoraN2o = 1;
+int8_t innerLoraTemperature = 0;
+uint8_t innerLoraHumidity = 0;
+int8_t outerLoraTemperature = 0;
+uint8_t outerLoraHumidity = 0;
+uint8_t soilLoraMoisture = 0;
+uint16_t innerLoraCo2 = 0;
+float innerLoraCh4 = 0;
+int16_t innerLoraN2o = 0;
 
 /* Resumen de los pines gpio utilizados.
   GPIO19-VENTILADOR-DIGITAL-LISTO
@@ -276,6 +276,7 @@ void findMinTgs2600(void) {
   while (true)
   {
     int32_t digitalVrl = (analogReadMilliVolts(TGS_ADC_PIN) * 2);
+    Serial.print("Voltaje medido actual: "); Serial.print(digitalVrl); Serial.println(" mV.");
     int32_t sensorResistance = ((5000.0 * LOAD_RESISTOR) / digitalVrl) - LOAD_RESISTOR;
     Serial.print("Resistencia Rs actual: "); Serial.println(sensorResistance);
     vTaskDelay(pdMS_TO_TICKS(1000));
@@ -506,7 +507,7 @@ void setRtcTime(void)
 {
   Serial.println("Estableciendo una hora y fecha en el reloj RTC…");
   vTaskDelay(pdMS_TO_TICKS(10000));  // Tiempo antes de establecer un nuevo tiempo para evitar reasignación.
-  loraRtc.adjust(DateTime(2025, 1, 31, 20, 22, 0)); // Establecer el tiempo en el formato: Año/Mes/Día/Hora/Minuto
+  loraRtc.adjust(DateTime(2025, 1, 31, 20, 22, 0)); // Establecer el tiempo en el formato: Año/Mes/Día/Hora/Minuto/Segundo
   Serial.println("Fecha y hora ajustadas.");
 }
 
@@ -521,6 +522,7 @@ DateTime readRtcTime(void)
 #define NORMALIZE_TIME 6e4 // 1 min en ms
 #define PREHEAT_TIME 18e4 // 3 min en ms
 #define VENTILATE_TIME 6e4 // Tiempo de ventilación inicial (1min).
+bool initialFan = false; // Activar la ventilación inicial.
 
 /* Configurar por única vez el sistema. */
 void sensingInitialConfig(void)
@@ -532,22 +534,22 @@ void sensingInitialConfig(void)
   Serial.println("Configurando el sistema, inicio único…");
   Serial.println("Precalentando sensores, 3 min… (MHZ19B, TGS2600, Dynament)");
 
-  // Descomentar para activar la ventilación inicial.
-  //Serial.println("Ventilando el entorno, 1 min…");
-  //turnOnFan();
+  if (initialFan)
+  {
+  Serial.println("Ventilando el entorno, 1 min…");
+  turnOnFan();
+  }
+
 
   while (millis() - currentTime < PREHEAT_TIME)
   {
-    // Descomentar para activar la ventilación inicial.
-    /*
-    if (millis() - currentTime > VENTILATE_TIME && !alredyVent)
+    if (initialFan && millis() - currentTime > VENTILATE_TIME && !alredyVent)
     {
       turnOffFan();
       Serial.println("----------------------------------------");
       Serial.println("Cámara ventilada.");
       alredyVent = true;
     }
-    */
     vTaskDelay(pdMS_TO_TICKS(1000));
   }
   Serial.println("Sensores precalentados.");
