@@ -26,7 +26,7 @@ bool checkRestoringEnvTime(void)
   Serial.println("mm");
   Serial.println("----------------------------------------");
 
-  if (minute >= 45)
+  if (minute >= 45 and minute < 58)
     return true;
   else
     return false;
@@ -41,14 +41,18 @@ void checkSendingTime(void)
   DateTime now = readRtcTime();
   uint8_t hour = now.hour();
   uint8_t minute = now.minute();
+  uint6_t second = now.second();
   Serial.print("Tiempo actual: ");
   Serial.print(hour);
   Serial.print("hh");
   Serial.print(":");
-  Serial.println(minute);
+  Serial.print(minute);
   Serial.print("mm");
-  
+  Serial.print(second);
+  Serial.println("ss");
+
   uint8_t minuteToSend = 0;
+  uint8_t secondToSend = 30;
 
   if (minute >= minutesToSend[2])
     minuteToSend = 59; // minuto de envío próxima ronda (0mm).
@@ -63,14 +67,23 @@ void checkSendingTime(void)
   Serial.print(hour);
   Serial.print("hh");
   Serial.print(":");
-  Serial.println(minuteToSend);
+  Serial.print(minuteToSend);
   Serial.print("mm");
+  Serial.print(secondToSend);
+  Serial.print("ss");
   
   while(readRtcTime().minute() < minuteToSend)
   {
     Serial.println("Esperando minuto de envío…");
     vTaskDelay(pdMS_TO_TICKS(1000));
   }
+
+  while(readRtcTime().second() < secondToSend)
+  {
+    Serial.println("Esperando segundo de envío…");
+    vTaskDelay(pdMS_TO_TICKS(1000));
+  }
+
   Serial.println("Se llegó al tiempo de envío.");
 }
 

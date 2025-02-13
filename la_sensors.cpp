@@ -522,7 +522,7 @@ DateTime readRtcTime(void)
 #define NORMALIZE_TIME 6e4 // 1 min en ms
 #define PREHEAT_TIME 18e4 // 3 min en ms
 #define VENTILATE_TIME 6e4 // Tiempo de ventilación inicial (1min).
-bool initialFan = false; // Activar la ventilación inicial.
+bool initialFan = true; // Activar la ventilación inicial.
 
 /* Configurar por única vez el sistema. */
 void sensingInitialConfig(void)
@@ -549,6 +549,7 @@ void sensingInitialConfig(void)
       Serial.println("----------------------------------------");
       Serial.println("Cámara ventilada.");
       alredyVent = true;
+      initialFan = false;
     }
     vTaskDelay(pdMS_TO_TICKS(1000));
   }
