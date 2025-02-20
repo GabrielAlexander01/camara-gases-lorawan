@@ -103,6 +103,8 @@ void loop()
       la hora y determinar si recolectar y enviar los datos, o reestablecer el sistema. */
       case DEVICE_STATE_INIT:
         Serial.println("El estado del dispositivo es DEVICE_STATE_INIT.");
+        /* Revisamos si estamos dentro del tiempo de ejecución del sistema */
+        checkSystemTime();
         /* Revisamos si debemos restaurar el entorno */
         if (checkRestoringEnvTime())
           initRestoreEnvProccess();

@@ -4,6 +4,9 @@
 /* Revisar el tiempo del sistema para la restauración del ambiente */
 bool checkRestoringEnvTime(void);
 
+/* Revisar el tiempo de funcionamiento del sistema */
+void checkSystemTime(void);
+
 /* Revisar el tiempo y esperar a la próxima ronda */
 void checkSendingTime(void);
 

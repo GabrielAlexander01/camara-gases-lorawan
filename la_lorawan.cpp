@@ -32,6 +32,53 @@ bool checkRestoringEnvTime(void)
     return false;
 }
 
+// Tiempos de funcionamiento
+#define MIN_HOUR 5
+#define MIN_MINUTE 45
+#define MAX_HOUR 17
+#define MAX_MINUTE 45
+
+/* Revisar el tiempo de funcionamiento del sistema */
+void checkSystemTime(void)
+{
+  Serial.println("Verificando funcionamiento del sistema…");
+  Serial.println("Recuperando tiempo del rtc externo…");
+  
+  DateTime now = readRtcTime();
+  uint8_t hour = now.hour();
+  uint8_t minute = now.minute();
+  uint8_t second = now.second();
+  Serial.print("Tiempo actual: ");
+  Serial.print(hour);
+  Serial.print("hh");
+  Serial.print(":");
+  Serial.print(minute);
+  Serial.print("mm");
+  Serial.print(second);
+  Serial.println("ss");
+
+  while((hour <= MIN_HOUR && minute < MIN_MINUTE) || (hour >= MAX_HOUR && minute > MAX_MINUTE))
+  {
+    Serial.println("En espera al tiempo de ejecución del sistema…");
+    vTaskDelay(pdMS_TO_TICKS(5000));
+
+    now = readRtcTime();
+    hour = now.hour();
+    minute = now.minute();
+    second = now.second();
+    Serial.print("Tiempo actualizado: ");
+    Serial.print(hour);
+    Serial.print("hh");
+    Serial.print(":");
+    Serial.print(minute);
+    Serial.print("mm");
+    Serial.print(second);
+    Serial.println("ss");
+  }
+
+  Serial.println("Sistema en tiempo de funcionamiento…");
+}
+
 /* Revisar el tiempo y esperar a la próxima ronda */
 void checkSendingTime(void)
 {
@@ -41,7 +88,7 @@ void checkSendingTime(void)
   DateTime now = readRtcTime();
   uint8_t hour = now.hour();
   uint8_t minute = now.minute();
-  uint6_t second = now.second();
+  uint8_t second = now.second();
   Serial.print("Tiempo actual: ");
   Serial.print(hour);
   Serial.print("hh");
